@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./vue.js"></script>
+    <script src="./lodash.min.js"></script>
+    <style>
+            *{
+                box-sizing: border-box;
+            }
+            body{
+                    background-color: #cdcdcd;
+                    height: 100vh;
+                    display: flex;
+                    margin: 0 auto;
+                    justify-content: center;
+                    align-items: center;
+            }
+
+            .container{
+                display: flex;
+                flex-direction: column;
+                width: 600px;
+                /* border: 1px solid #000000; */
+            }
+            ul{
+                flex: 1;
+                margin: 0; /* To remove default bottom margin */ 
+                padding: 0; /*To remove default left padding */
+            }
+            ul li{
+                list-style-type: none;
+                border: 1px solid #000000;
+                padding: 10px 10px 10px;
+                margin-bottom: 5px;
+                background-color: #fff;
+            }
+
+            ul li:hover{
+                background-color: #000000;
+                color: #fff;
+                cursor: pointer;
+            }
+            .todoList{
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                margin-left: 0px;
+            }
+            #todo-desc{
+                /* float: right; */
+                cursor: pointer;
+                /* color: red; */
+            }
+            #todo-del{
+                float: right;
+                cursor: pointer;
+                color: red;
+            }
+            .todo-form{
+                display: flex;
+                margin-bottom: 10px;
+                /* flex: 1 1 auto; */
+                /* border: 1px solid #000000; */
+            }
+
+            input{
+                flex: 1;
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #cdcdcd;
+            }
+
+            button{
+                flex: 0.5;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+
+            [contenteditable=true]:focus{
+                overflow: hidden;
+                border: 1px solid transparent;
+
+                -webkit-appearance: textfield;
+                -moz-appearance: textfield;
+                appearance: textfield;
+
+                white-space: nowrap;
+                border-radius: 10px;
+            }
+            h4{
+                text-align: center;
+                text-transform: uppercase;
+            }
+            .emptyError{
+                 border: 1px solid red;
+            }
+            .completed{
+                text-decoration: line-through;
+            }
+    </style>
+</head>
+<body>
+     <div class="container" id="app">
+            <h4>{{message}}</h4>
+            <div class="todo-form">
+                    <input type="text" placeholder="Enter Today Task" v-model="task" v-bind:class="{emptyError:isError}">
+                    <button v-on:click="addTodo">Add</button>
+            </div>
+           <div class="todoList">
+                <ul>
+                    <li v-for="todo in filterLists" :key="todo.id"> <input type="checkbox" v-bind:checked="todo.isDone" v-on:change="completeTask($event, todo)"><span id="todo-desc" contenteditable="true" v-bind:class="{completed:todo.isDone}"  v-on:keydown.enter="updateTask($event, todo)" v-on:blur="updateTask($event, todo)">{{todo.task}} </span><span id="todo-del" v-on:click="deleteTodo(todo)">delete</span></li>
+                </ul> 
+           </div>
+         
+     </div>
+     <script>
+            var app = new Vue({
+                el:"#app",
+                data:{
+                    message: "Todo App",
+                    isError: false,
+                    lists: [
+                        {id:1, task:'learn Nodejs', isDone: true},
+                        {id:2, task:'learn Angularjs', isDone: false},
+                    ],
+                    task: ''
+                },
+                computed: {
+                    filterLists: function(){
+                        return _.orderBy(this.lists, ['isDone', false])
+                    }
+                },
+                methods: {
+                    addTodo: function(){
+                        if(!this.task){
+                            this.isError = true;
+                            return
+                        }
+                        this.isError = false;
+                        this.lists.unshift({id: this.lists.length+1, task: this.task, isDone: false}); // unshift add data in first index
+                        this.task = ''
+                    },
+                    completeTask: function(e, data){
+                        e.preventDefault();
+                        data.isDone = !data.isDone;
+                    },
+                    updateTask: function(e, data){
+                            e.preventDefault();
+                            data.task = e.target.innerText;
+                            e.target.blur();
+                    },
+                    deleteTodo: function(data){
+                        this.lists.splice(this.lists.indexOf(data),1);
+                    }
+                }
+            })
+
+     </script>
+</body>
+</html>
